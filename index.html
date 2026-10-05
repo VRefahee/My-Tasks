@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>روزنگار - برنامه ریز روزانه</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#090d16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- هدر برنامه -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="app-logo">⏱️</div>
+        <div>
+          <h1 class="app-title">روزنگار</h1>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button id="btn-reset-data" class="btn-icon" title="پاکسازی کامل اطلاعات برنامه" style="opacity: 0.6; padding: 6px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </button>
+        <div class="live-widget">
+          <div id="live-time" class="live-time">00:00:00</div>
+          <div id="live-date" class="live-date">--</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- نمای روز جاری (Today View) -->
+    <main id="view-today">
+      <!-- نمودار بازه زمانی ۲۴ ساعته -->
+      <section class="glass-panel">
+        <h2 class="panel-title">
+          <span>📊</span>
+          <span>نمودار زمانی ۲۴ ساعته امروز</span>
+        </h2>
+        
+        <div class="timeline-wrapper">
+          <div class="timeline-hours-axis">
+            <span>۰۰:۰۰</span>
+            <span>۰۶:۰۰</span>
+            <span>۱۲:۰۰</span>
+            <span>۱۸:۰۰</span>
+            <span>۲۴:۰۰</span>
+          </div>
+          
+          <div id="timeline-chart" class="timeline-track">
+            <!-- خط زمان زنده و بلاک کارهای روز با جاوااسکریپت پر می‌شود -->
+          </div>
+        </div>
+      </section>
+
+      <!-- جدول زمانبندی روزانه (Daily Schedule Table) -->
+      <section class="glass-panel" style="margin-top: 14px;">
+        <div class="section-header">
+          <h2 class="panel-title" style="margin-bottom: 0;">
+            <span>🗓️</span>
+            <span>جدول زمانبندی امروز</span>
+          </h2>
+          <span class="schedule-subtitle">۰۶:۰۰ صبح تا ۲۴:۰۰ شب</span>
+        </div>
+
+        <div id="today-schedule-table" class="schedule-table-wrap">
+          <!-- ردیف‌های جدول هر ساعت اینجا ساخته می‌شوند -->
+        </div>
+      </section>
+    </main>
+
+    <!-- نمای تاریخچه و تقویم شمسی (History View) -->
+    <main id="view-history" class="hidden">
+      <!-- تقویم شمسی -->
+      <section class="glass-panel">
+        <div class="calendar-header">
+          <button id="btn-next-month" class="btn-icon">◀</button>
+          <div id="calendar-title" class="calendar-title">مهر ۱۴۰۵</div>
+          <button id="btn-prev-month" class="btn-icon">▶</button>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>ش</span>
+          <span>ی</span>
+          <span>د</span>
+          <span>س</span>
+          <span>چ</span>
+          <span>پ</span>
+          <span>ج</span>
+        </div>
+
+        <div id="calendar-days-grid" class="calendar-grid">
+          <!-- روزهای ماه شمسی -->
+        </div>
+      </section>
+
+      <!-- جزئیات کارهای تاریخ انتخاب شده -->
+      <section class="glass-panel" style="margin-top: 14px;">
+        <div class="section-header">
+          <h3 id="history-selected-date-text" class="panel-title" style="margin-bottom: 0;">کارهای تاریخ انتخابی</h3>
+          <span class="schedule-subtitle">۰۶:۰۰ صبح تا ۲۴:۰۰ شب</span>
+        </div>
+        <div id="history-schedule-table" class="schedule-table-wrap">
+          <!-- جدول زمانبندی تاریخ انتخابی -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- دکمه شناور ایجاد کار -->
+  <button id="btn-add-task" class="fab-btn" title="افزودن کار جدید">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+  </button>
+
+  <!-- ناوبری پایین صفحه -->
+  <nav class="bottom-nav">
+    <button id="nav-today" class="nav-item active">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <span>امروز</span>
+    </button>
+    <button id="nav-history" class="nav-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span>تاریخچه</span>
+    </button>
+  </nav>
+
+  <!-- مدال ثبت کار جدید با انتخابگر ساعت گرافیکی -->
+  <div id="task-modal" class="modal-overlay hidden">
+    <div id="modal-overlay" style="position: absolute; inset: 0;"></div>
+    <div class="modal-content" style="position: relative; z-index: 10;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">✨</span>
+          <h3 style="font-size: 17px; font-weight: 700;">افزودن کار به برنامه</h3>
+        </div>
+        <button id="btn-close-modal" class="btn-icon">✕</button>
+      </div>
+
+      <form id="task-form">
+        <div class="form-group">
+          <label for="task-title">عنوان فعالیت</label>
+          <input type="text" id="task-title" class="form-input" placeholder="مثلاً: جلسه کاری، مطالعه، پیاده‌روی..." required>
+        </div>
+
+        <!-- انتخابگر زمان گرافیکی و شیک -->
+        <div class="custom-time-picker-card">
+          <div class="picker-section">
+            <span class="picker-title">🟢 زمان شروع</span>
+            <div class="picker-controls">
+              <div class="picker-col">
+                <span class="picker-col-label">دقیقه</span>
+                <select id="start-minute" class="picker-select">
+                  <!-- پر شده توسط جاوااسکریپت -->
+                </select>
+              </div>
+              <span class="picker-colon">:</span>
+              <div class="picker-col">
+                <span class="picker-col-label">ساعت</span>
+                <select id="start-hour" class="picker-select">
+                  <!-- پر شده توسط جاوااسکریپت -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="picker-divider"></div>
+
+          <div class="picker-section">
+            <span class="picker-title">🔴 زمان پایان</span>
+            <div class="picker-controls">
+              <div class="picker-col">
+                <span class="picker-col-label">دقیقه</span>
+                <select id="end-minute" class="picker-select">
+                  <!-- پر شده توسط جاوااسکریپت -->
+                </select>
+              </div>
+              <span class="picker-colon">:</span>
+              <div class="picker-col">
+                <span class="picker-col-label">ساعت</span>
+                <select id="end-hour" class="picker-select">
+                  <!-- پر شده توسط جاوااسکریپت -->
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- پیش‌نمایش بازه زمانی انتخاب شده -->
+        <div id="picker-summary" class="picker-summary">
+          ⏰ بازه زمانی: <span id="summary-range-text">--</span>
+        </div>
+
+        <button type="submit" class="btn-primary">ثبت در جدول زمانبندی</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- اسکریپت‌ها و رجیستر Service Worker -->
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('SW Registered!', reg))
+          .catch(err => console.log('SW Registration failed', err));
+      });
+    }
+  </script>
+</body>
+</html>
